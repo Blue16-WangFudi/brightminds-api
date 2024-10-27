@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.brightminds.education.model.AiUser;
 
+import java.util.Optional;
+
 /**
  * 账号信息管理服务类，用于处理用户账号的增删查改操作。
  * 包括根据用户名查询、更新账号信息以及删除用户等功能。
@@ -43,4 +45,11 @@ public class AiUserService {
     public void delete(String username) {
         aiUserRepository.deleteByUsername(username);
     }
+
+    /**
+     * 删除指定用户名的用户账号信息。
+     *
+     * @param token 用户登录的token
+     */
+    public Optional<AiUser> getByToken(String token) {return aiUserRepository.findById(token);}
 }

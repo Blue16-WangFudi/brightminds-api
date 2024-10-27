@@ -1,0 +1,146 @@
+### 获取验证码
+POST http://47.119.178.225:8092/api/v1/user/captcha
+Content-Type: application/json
+
+{
+  "token": "15282056609",
+  "phoneNum": "15281991073"
+}
+
+### 登录验证
+POST http://47.119.178.22:8092/api/v1/user/authenticate
+Content-Type: application/json
+
+{
+  "username": "15281991073",
+  "password": "429457"
+}
+
+
+### 登出
+POST http://localhost:8092/api/v1/user/logout
+Content-Type: application/json
+
+{
+  "id": "4c61b4fa-d393-4dc6-ab88-5175c72c4564",
+  "username": "15281991073"
+}
+
+
+### 修改用户信息
+POST http://brightminds.blue16.cn:8092/api/v1/user/updateInfo
+Content-Type: application/json
+
+{
+  "token": "18192ada-9bc2-449f-b12f-03c610a13efb",
+  "data":{
+    "username": "15281991073",
+    "name": "haha",
+    "gender": "male",
+    "age": "21",
+    "hobby": "haha",
+    "information": "123"
+  }
+
+}
+
+### Qwen文本对话
+POST http://localhost:8092/api/v1/chat/chat-stream
+Content-Type: application/json
+
+{
+  "token": "45dd9ee0-4065-4bc6-85ac-1b0ba2d3619c",
+  "data": {
+    "sessionId": "671b68b8fc55631e86a49c25",
+    "userId": "",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      {
+        "role": "user",
+        "content": "你好！！！！"
+      }
+    ],
+    "parameters": {
+      "model": "qwen-vl-plus",
+      "stream": true
+    }
+  }
+}
+
+### Qwen图像识别
+POST http://localhost:8092/api/v1/chat/chat-stream
+Content-Type: application/json
+
+{
+  "token": "45dd9ee0-4065-4bc6-85ac-1b0ba2d3619c",
+  "data": {
+    "sessionId": "bfb23e7d-59b0-4bfe-a82e-590327132d2d",
+    "messages": [{
+      "role": "user",
+      "content":
+      [{"type": "text","text": "这是什么"},
+        {"type": "image_url","image_url": {"url": "https://dashscope.oss-cn-beijing.aliyuncs.com/images/dog_and_girl.jpeg"}}]
+    }],
+    "parameters": {
+      "model": "qwen-vl-plus",
+      "stream": true
+    }
+  }
+}
+
+### Qwen视频识别
+POST http://localhost:8092/api/v1/chat/chat-stream
+Content-Type: application/json
+
+{
+  "token": "45dd9ee0-4065-4bc6-85ac-1b0ba2d3619c",
+  "data": {
+    "sessionId": "bfb23e7d-59b0-4bfe-a82e-590327132d2e",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "video",
+            "video": [
+              "https://img.alicdn.com/imgextra/i3/O1CN01K3SgGo1eqmlUgeE9b_!!6000000003923-0-tps-3840-2160.jpg",
+              "https://img.alicdn.com/imgextra/i4/O1CN01BjZvwg1Y23CF5qIRB_!!6000000003000-0-tps-3840-2160.jpg",
+              "https://img.alicdn.com/imgextra/i4/O1CN01Ib0clU27vTgBdbVLQ_!!6000000007859-0-tps-3840-2160.jpg",
+              "https://img.alicdn.com/imgextra/i1/O1CN01aygPLW1s3EXCdSN4X_!!6000000005710-0-tps-3840-2160.jpg"]
+          },
+          {
+            "type": "text",
+            "text": "描述这个视频的具体过程"
+          }]}
+    ],
+    "parameters": {
+      "model": "qwen-vl-max-latest",
+      "stream": true
+    }
+  }
+}
+
+### 获取给定username的所有相关session
+POST http://localhost:8092/api/v1/chat/session
+Content-Type: application/json
+
+{
+  "token": "45dd9ee0-4065-4bc6-85ac-1b0ba2d3619c",
+  "data": {
+    "userId": "15281991074"
+  }
+}
+
+### 获取对于sessionId的对话数据
+POST http://localhost:8092/api/v1/chat/message
+Content-Type: application/json
+
+{
+  "token": "45dd9ee0-4065-4bc6-85ac-1b0ba2d3619c",
+  "data": {
+    "sessionId": "671b68b8fc55631e86a49c25"
+  }
+}

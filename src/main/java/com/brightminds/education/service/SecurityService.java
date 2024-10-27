@@ -53,15 +53,15 @@ public class SecurityService {
      * 检查指定的请求是否有权限访问某个接口。
      *
      * @param securityRequest 请求的安全信息
-     * @param location 接口的路径或位置
+     * @param endpoint 接口的路径或位置
      * @return 如果请求的用户权限等级大于等于接口访问等级，返回 true，否则返回 false。
      */
-    public boolean checkAccess(SecurityRequest<?> securityRequest, String location) {
+    public boolean checkAccess(SecurityRequest<?> securityRequest, String endpoint) {
         AccessLevel defaultAccessLevel = new AccessLevel();
         defaultAccessLevel.setAccessLevel(100); // 默认接口访问权限
 
         // 获取指定接口的访问等级，如果不存在则使用默认值
-        Optional<AccessLevel> accessLevelByLocation = accessLevelRepository.findAccessLevelByLocation(location);
+        Optional<AccessLevel> accessLevelByLocation = accessLevelRepository.findAccessLevelByLocation(endpoint);
         int requiredAccessLevel = accessLevelByLocation.orElse(defaultAccessLevel).getAccessLevel();
 
         return getAccessLevel(securityRequest.getToken()) >= requiredAccessLevel;

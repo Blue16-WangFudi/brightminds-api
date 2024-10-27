@@ -1,0 +1,30 @@
+### 提交图像生成任务
+POST http://localhost:8092/api/v1/image/generate
+Content-Type: application/json
+
+{
+  "token": "45dd9ee0-4065-4bc6-85ac-1b0ba2d3619c",
+  "data": {
+    "sessionId": "123456",
+    "input": {
+      "prompt": "少女，高分辨率，增加细节，细节强化，侧面视角，森林，奶油风，暖色调，精致的脸部比例，精细的裙子，五官立体，长卷发，极高分辨率，清晰度强化，全身像，微笑，五颜六色的花瓣飞舞，自然光"
+    },
+    "parameters": {
+      "style": "<auto>",
+      "size": "1024*1024",
+      "n":3
+    }
+  }
+
+}
+
+### 轮询获取当前任务状态，任务完成后获取下载地址
+POST http://localhost:8092/api/v1/image/status
+Content-Type: application/json
+
+{
+  "token": "45dd9ee0-4065-4bc6-85ac-1b0ba2d3619c",
+  "data": {
+    "taskId": "7fb119dd-da2a-49cd-ac39-8f00093db93b"
+  }
+}
