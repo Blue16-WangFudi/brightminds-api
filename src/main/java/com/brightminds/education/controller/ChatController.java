@@ -12,6 +12,7 @@ import com.brightminds.education.model.document.ChatMessage;
 import com.brightminds.education.model.document.ChatSession;
 import com.brightminds.education.service.AiUserService;
 import com.brightminds.education.service.ChatSessionService;
+import com.brightminds.education.service.FunctionCallService;
 import com.brightminds.education.service.SecurityService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -40,6 +41,9 @@ public class ChatController {
 
     @Autowired
     private ChatSessionService chatSessionService;
+
+    @Autowired
+    private FunctionCallService functionCallService;
 
     @Autowired
     private SecurityService securityService;
@@ -78,8 +82,10 @@ public class ChatController {
             //return new ResultResponse<>(ResultCode.UNAUTHORIZED, "无权访问接口", null);
             return null; //这里还不清楚怎么处理，因为是SSE所以不太好弄
         }
+
+        ChatRequest chatRequest = securityRequest.getData();
         // 尝试从数据库获取消息
-        Optional<ChatSession> chatSession = chatSessionService.getMessage(securityRequest.getData().getSessionId());
+        Optional<ChatSession> chatSession = chatSessionService.getMessage(chatRequest.getSessionId());
 
         List<ChatMessage> recordMsg; // 最终传递给大模型的消息汇总
         if(chatSession.isPresent()){
@@ -96,9 +102,21 @@ public class ChatController {
         qwenChatRequest.put("messages",recordMsg); // 置入消息（Message）
         qwenChatRequest.putAll(securityRequest.getData().getParameters());// 置入参数（Parameter）
 
+        // 检查是否有工具调用，如果有，查询并加入到
+        List<Map<String, Object>> tools = new ArrayList<>();
+        if(chatRequest.getTools()!=null){
+            for (String tool : chatRequest.getTools()) {
+                Map<String, Object> toolByName = functionCallService.getToolByName(tool);
+                if(toolByName==null)
+                    continue;
+                tools.add(toolByName);
+            }
+            qwenChatRequest.put("tools",tools);
+        }
+
         SseEmitter emitter = new SseEmitter();
         StringBuilder fullResponse = new StringBuilder(); // 获取流式请求的完整文本，用于添加到数据库中
-        boolean finalHasHistory = chatSession.isPresent();
+
         webClient.post()
                 .uri("/compatible-mode/v1/chat/completions")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -113,6 +131,9 @@ public class ChatController {
                                 JsonNode jsonNode = objectMapper.readTree(chunk);
                                 JsonNode choices = jsonNode.get("choices");
 
+                                // 获取function_call
+                                String jsonString = objectMapper.writeValueAsString(jsonNode);
+
                                 if (choices != null && choices.isArray()) {
                                     for (JsonNode choice : choices) {
                                         JsonNode delta = choice.get("delta");
@@ -120,6 +141,9 @@ public class ChatController {
                                             String content = delta.get("content").asText();
                                             if(!content.equals("null"))
                                                 fullResponse.append(content); // Accumulate the content
+                                        }else{
+                                            JsonNode message = choice.get("message");
+                                            fullResponse.append( message.get("content").asText());
                                         }
                                     }
                                 }
@@ -133,7 +157,8 @@ public class ChatController {
                         emitter::completeWithError,
                         () -> {
                             // 这里是发送完成后的处理事件
-                            recordMsg.add(new ChatMessage("assistant",fullResponse.toString()));
+                            if(!fullResponse.toString().isEmpty())
+                                recordMsg.add(new ChatMessage("assistant",fullResponse.toString()));
                             // 获取用户账号名称
                             Optional<AiUser> byToken = aiUserService.getByToken(securityRequest.getToken());
                             chatSessionService.saveSession(securityRequest.getData().getSessionId(),byToken.get().getUsername(), recordMsg);

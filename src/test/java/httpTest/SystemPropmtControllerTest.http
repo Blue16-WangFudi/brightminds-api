@@ -1,0 +1,17 @@
+### 提供参数与变量，获取对应提示词
+POST http://localhost:8092/api/v1/chat/prompt/get
+Content-Type: application/json
+
+{
+  "token": "45dd9ee0-4065-4bc6-85ac-1b0ba2d3619c",
+  "data": {
+    "name": "PaintTutorial",
+    "category": "brightminds.paint",
+    "parameters": {
+      "AssistantName": "林老师",
+      "RoleName": "幼儿美术老师",
+      "StudentName": "豆豆",
+      "Gender": "男"
+    }
+  }
+}

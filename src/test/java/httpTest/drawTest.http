@@ -1,0 +1,55 @@
+
+// 对话自动调用画画接口示例（请确保下方接口按照顺序调用，同时确保sessionId保持一致，以便继续上一轮的对话）
+### 第一步，初始化对话数据，也就是系统提示(system)
+POST http://localhost:8092/api/v1/chat/chat-stream
+Content-Type: application/json
+
+{
+  "token": "45dd9ee0-4065-4bc6-85ac-1b0ba2d3619c",
+  "data": {
+    "sessionId": "671b68b8fc55631e86a49c1",
+    "userId": "#test",
+    "tools": ["generatePic"],
+    "messages": [
+      {
+        "role": "system",
+        "content": "你叫小林老师，你是一名专业的小学美术老师，现在你的学生豆豆想学习画画，你现在需要问他想要画什么样的画"
+      },
+      {
+        "role": "user",
+        "content": "老师好！"
+      }
+    ],
+    "parameters": {
+      "model": "qwen-plus",
+      "stream": false
+    }
+  }
+}
+
+
+### 第二步，继续对话，大模型会逐步询问学生绘画意图，到合适的时候会自动出发FunctionCall，提取出参数并返回
+// 注意，要确保sessionId一致，这一步可以多次调用，进行多次问答
+// 同时，function call的调用由于需要提供外部函数调用值，因此这轮assistant的返回会话不会写入数据库，需要用户手动合并并提交tools的返回值
+
+POST http://localhost:8092/api/v1/chat/chat-stream
+Content-Type: application/json
+
+{
+  "token": "45dd9ee0-4065-4bc6-85ac-1b0ba2d3619c",
+  "data": {
+    "sessionId": "671b68b8fc55631e86a49ck",
+    "userId": "#test",
+    "tools": ["generatePic"],
+    "messages": [
+      {
+        "role": "user",
+        "content": "帮我画一张图片，图片中是一道彩虹"
+      }
+    ],
+    "parameters": {
+      "model": "qwen-plus",
+      "stream": false
+    }
+  }
+}
