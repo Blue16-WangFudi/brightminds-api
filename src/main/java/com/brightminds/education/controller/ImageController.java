@@ -40,7 +40,7 @@ public class ImageController {
     ObjectMapper objectMapper = new ObjectMapper();
 
     @PostMapping("/generate")
-    public ResultResponse<QwenImageTaskResponse> generateImage(@RequestBody SecurityRequest<ImageTaskRequest> securityRequest) {
+    public ResultResponse<?> generateImage(@RequestBody SecurityRequest<ImageTaskRequest> securityRequest) throws JsonProcessingException {
 
         // 权限校验
         if (!securityService.checkAccess(securityRequest, "brightminds.imagecontroller.generate")) {
@@ -71,19 +71,21 @@ public class ImageController {
 
         String url = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis";
 
+        String result = restTemplate.postForObject(url, entity, String.class);
+
         try{
-            QwenImageTaskResponse qwenImageTaskResponse = objectMapper.readValue(restTemplate.postForObject(url, entity, String.class), QwenImageTaskResponse.class);
+            QwenImageTaskResponse qwenImageTaskResponse = objectMapper.readValue(result, QwenImageTaskResponse.class);
             return new ResultResponse<>(ResultCode.SUCCESS, "创建任务成功", qwenImageTaskResponse);
         }
         catch(Exception e){
-            return new ResultResponse<>(ResultCode.BAD_REQUEST, "获取响应体失败", null);
+            return new ResultResponse<>(ResultCode.BAD_REQUEST, "获取响应体失败", objectMapper.readTree(result));
         }
 
 
     }
 
     @PostMapping("/status")
-    public ResultResponse<QwenImageStatusResponse> getTaskStatus(@RequestBody SecurityRequest<ImageStatusRequest> securityRequest) throws JsonProcessingException {
+    public ResultResponse<?> getTaskStatus(@RequestBody SecurityRequest<ImageStatusRequest> securityRequest) throws JsonProcessingException {
 
         // 权限校验
         if (!securityService.checkAccess(securityRequest, "brightminds.imagecontroller.status")) {
@@ -104,12 +106,14 @@ public class ImageController {
 
         String url = "https://dashscope.aliyuncs.com/api/v1/tasks/" + imageStatusRequest.getTaskId();
 
+        String result = restTemplate.postForObject(url, entity, String.class);
+
         try{
-            QwenImageStatusResponse qwenImageStatusResponse = objectMapper.readValue(restTemplate.postForObject(url, entity, String.class), QwenImageStatusResponse.class);
+            QwenImageStatusResponse qwenImageStatusResponse = objectMapper.readValue(result, QwenImageStatusResponse.class);
             return new ResultResponse<>(ResultCode.SUCCESS, "创建任务成功", qwenImageStatusResponse);
         }
         catch(Exception e){
-            return new ResultResponse<>(ResultCode.BAD_REQUEST, "获取响应体失败", null);
+            return new ResultResponse<>(ResultCode.BAD_REQUEST, "获取响应体失败", objectMapper.readTree(result));
         }
 
     }

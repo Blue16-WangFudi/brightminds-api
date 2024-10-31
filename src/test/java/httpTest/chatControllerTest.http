@@ -5,16 +5,12 @@ Content-Type: application/json
 {
   "token": "45dd9ee0-4065-4bc6-85ac-1b0ba2d3619c",
   "data": {
-    "sessionId": "671b68b8fc55631e86a49c25",
+    "sessionId": "671b68b8fc55631e86a49c25k1",
     "userId": "1",
     "messages": [
       {
         "role": "system",
         "content": "You are a helpful assistant."
-      },
-      {
-        "role": "user",
-        "content": "你好！！！！"
       }
     ],
     "parameters": {
